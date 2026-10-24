@@ -1,0 +1,19 @@
+node_modules/
+dist/
+*.local
+
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+
+# Keep assessment attachments and generated audit evidence local.
+*.pdf
+data/*
+!data/README.md
+!data/giga-corp-synthetic-40000.csv
+!data/synthetic-summary.json
+!data/audit/
+data/audit/*
+!data/audit/.gitkeep

@@ -1,0 +1,30 @@
+{
+  "synthetic": true,
+  "seed": 20261023,
+  "employees": 40000,
+  "roots": 1,
+  "managers": 5091,
+  "individual_contributors": 34909,
+  "max_depth_edges": 8,
+  "max_direct_reports": 24,
+  "currency": "CAD",
+  "annual_salary_total_including_ceo": 5010042000,
+  "annual_management_salary_including_ceo": 968009000,
+  "annual_ic_salary": 4042033000,
+  "ceo_descendant_count": 39999,
+  "ceo_non_leaf_descendant_count": 5090,
+  "ceo_descendant_management_cost": 967359000,
+  "ceo_descendant_ic_cost": 4042033000,
+  "ceo_descendant_total_cost": 5009392000,
+  "department_headcounts": {
+    "Executive": 1,
+    "Engineering": 1480,
+    "Product": 5665,
+    "Sales": 2929,
+    "Customer Success": 2516,
+    "Operations": 5980,
+    "Finance": 16325,
+    "People": 2289,
+    "Marketing": 2815
+  }
+}
