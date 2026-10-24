@@ -145,9 +145,8 @@ set `AUDIT_BASE_URL=http://127.0.0.1:4173/` and a fresh `QA_OUTPUT_DIR` to prese
 historical evidence. Keyboard/readability checks use `QA_STAGE=after` with
 `scripts/check_followup.py`.
 
-[CODE_QUALITY_REVIEW.md](CODE_QUALITY_REVIEW.md) documents architecture findings,
-justified changes, current verification and trade-offs. [AUDIT_REPORT.md](AUDIT_REPORT.md)
-retains earlier correctness, browser, accessibility and performance evidence.
+[AUDIT_REPORT.md](AUDIT_REPORT.md) records correctness, browser, accessibility,
+performance and code-review findings.
 Use the dated reports for actual executed coverage, not a blanket compatibility
 or accessibility guarantee.
 

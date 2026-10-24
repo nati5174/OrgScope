@@ -449,9 +449,8 @@ passes with it. Existing Explorer scripts accept `QA_BROWSER` and
 
 ## 17. Staff engineer code-quality review - 2026-10-23
 
-See [CODE_QUALITY_REVIEW.md](CODE_QUALITY_REVIEW.md) for the complete architecture,
-type safety, Vue, algorithms, security, worker lifecycle, testing and documentation
-review. **Code-review verdict: REVIEW READY WITH MINOR ISSUES.** This is distinct
+The review covered architecture, type safety, Vue, algorithms, security,
+worker lifecycle, testing and documentation. **Code-review verdict: REVIEW READY WITH MINOR ISSUES.** This is distinct
 from the submission verdict above; deployment and original CSV access were excluded.
 
 Confirmed and fixed: analytics kept an obsolete branch page and query when an
