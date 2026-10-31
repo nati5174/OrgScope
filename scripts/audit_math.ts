@@ -5,7 +5,7 @@ import { loadOrganization, managementCostRatio, type Metrics } from '../src/engi
 import { ancestorPath } from '../src/engine/explorer'
 import { analyzeWorkforce } from '../src/engine/analytics'
 import { simulateMove } from '../src/engine/scenario'
-const csvPath = 'data/giga-corp-synthetic-40000.csv', csv = readFileSync(csvPath, 'utf8')
+const csvPath = 'data data.csv', csv = readFileSync(csvPath, 'utf8')
 const oracle = spawnSync('python', ['scripts/reference_metrics.py', csvPath], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
 if (oracle.status !== 0) throw new Error(oracle.stderr)
 const reference = JSON.parse(oracle.stdout) as { metrics: Record<string, Metrics>; directReports: Record<string, number>; depth: Record<string, number>; parents: Record<string, string | null>; roots: string[]; headcount: number; totalSalaryMinor: number }
@@ -33,7 +33,7 @@ const analytics = analyzeWorkforce(org, null)
 if (analytics.headcount !== reference.headcount || analytics.totalCostMinor !== reference.totalSalaryMinor) mismatches.push({ id: '*', field: 'analytics' })
 // Verify repeated independent moves preserve baseline and whole-company totals.
 const snapshot = JSON.stringify([...org.metrics]), scenarioChecks = []
-for (const [moving, destination] of [['GC000002', 'GC000007'], ['GC000003', 'GC000006'], ['GC040000', 'GC000001']]) {
+for (const [moving, destination] of [['p_cNNDKZRLm2DMkjKXx8YPdo', 'p_XkJbblsKUlQoR5W1DxAN7t'], ['p_XkJbblsKUlQoR5W1DxAN7t', 'p_P7lSz8GTk0HF8V8d0Ra6E'], ['p_njwxPOk9vEs4ToOrLrA0m', 'p_DrnEHzsrxaHOPnwwNDBwy']]) {
   const scenario = simulateMove(org, moving, destination), proposed = analyzeWorkforce(scenario.organization, null)
   const independent = spawnSync('python', ['scripts/reference_metrics.py', csvPath, moving, destination], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
   if (independent.status !== 0) throw new Error(independent.stderr)
@@ -49,7 +49,7 @@ for (const [moving, destination] of [['GC000002', 'GC000007'], ['GC000003', 'GC0
     salaryPreserved: proposed.totalCostMinor === reference.totalSalaryMinor, baselineUnchanged: JSON.stringify([...org.metrics]) === snapshot,
     metricComparisons, independentMetricMismatches: scenarioMismatches })
 }
-const result = { dataset: csvPath, synthetic: true, originalDatasetAvailable: false,
+const result = { dataset: csvPath, originalDatasetAvailable: true,
   sha256: createHash('sha256').update(csv).digest('hex'), employeesVerified: org.employees.size,
   referenceMethod: 'Independent Python CSV + Decimal; deposit each salary into its raw ancestor chain, with per-chain cycle and duplicate detection.',
   comparisons, employeesWithMismatch, mismatches: mismatches.length, examples: mismatches.slice(0, 20), scenarioChecks }

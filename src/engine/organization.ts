@@ -24,33 +24,30 @@ export function parseCsv(text: string): { employees: Employee[]; currency: strin
   })
   const issues = result.errors.map(e => `CSV row ${e.row === undefined ? '?' : e.row + 2}: ${e.message}`)
   for (const header of Object.values(result.meta.renamedHeaders ?? {})) issues.push(`Duplicate CSV column: ${header}`)
-  for (const field of ['employee_id', 'manager_id', 'name', 'salary', 'currency']) {
+  for (const field of ['Employee Id', 'Manager', 'Name', 'Salary']) {
     if (!result.meta.fields?.includes(field)) issues.push(`Missing required column: ${field}`)
   }
-  const currencies = new Set<string>()
   const employees = result.data.map((row, index): Employee => {
-    const salary = row.salary?.trim() ?? ''
+    const salary = row.Salary?.trim() ?? ''
+    const validSalary = /^\d+(\.\d+)?$/.test(salary)
     let salaryMinor = NaN
-    if (/^\d+(\.\d{1,2})?$/.test(salary)) {
+    if (validSalary) {
       const [whole, fraction = ''] = salary.split('.')
-      const cents = BigInt(whole) * 100n + BigInt(fraction.padEnd(2, '0'))
+      // Round source decimal text half-up to cents without binary floating-point loss.
+      const cents = BigInt(whole) * 100n + BigInt(fraction.padEnd(2, '0').slice(0, 2)) + (Number(fraction[2] ?? '0') >= 5 ? 1n : 0n)
       if (cents <= BigInt(Number.MAX_SAFE_INTEGER)) salaryMinor = Number(cents)
     }
-    if (!/^\d+(\.\d{1,2})?$/.test(salary) || !Number.isSafeInteger(salaryMinor)) issues.push(`Row ${index + 2}: invalid salary`)
-    const currency = row.currency?.trim() ?? ''
-    if (!/^[A-Z]{3}$/.test(currency)) issues.push(`Row ${index + 2}: currency must be a three-letter uppercase code`)
-    currencies.add(currency)
-    return { id: row.employee_id?.trim() ?? '', managerId: row.manager_id?.trim() || null,
-      name: row.name?.trim() ?? '', salaryMinor,
-      department: row.department?.trim(), title: row.title?.trim(), location: row.location?.trim() }
+    if (!validSalary || !Number.isSafeInteger(salaryMinor)) issues.push(`Row ${index + 2}: invalid salary`)
+    return { id: row['Employee Id']?.trim() ?? '', managerId: row.Manager?.trim() || null,
+      name: row.Name?.trim() ?? '', salaryMinor,
+      department: row.Department?.trim(), title: row['Job Title']?.trim(), location: row.Location?.trim() }
   })
   if (!employees.length) issues.push('Dataset contains no employees')
-  if (currencies.size > 1) issues.push('Mixed currencies cannot be aggregated without conversion')
   if (issues.length) throw new DataValidationError(issues)
-  return { employees, currency: [...currencies][0] }
+  return { employees, currency: 'XXX' }
 }
 
-export function buildOrganization(input: readonly Employee[], currency = 'CAD'): Organization {
+export function buildOrganization(input: readonly Employee[], currency = 'XXX'): Organization {
   const start = performance.now()
   const employees = new Map<string, Employee>(), children = new Map<string, string[]>()
   const issues: string[] = [], roots: string[] = []

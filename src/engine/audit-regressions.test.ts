@@ -4,7 +4,7 @@ import { navigatorRows } from './navigator'
 
 describe('QA input and navigation regressions', () => {
   it('preserves exact decimal cents near the safe integer boundary', () => {
-    const org = loadOrganization('employee_id,manager_id,name,salary,currency\nr,,Root,90071992547409.90,CAD')
+    const org = loadOrganization('Employee Id,Manager,Name,Salary\nr,,Root,90071992547409.90')
     expect(org.employees.get('r')!.salaryMinor).toBe(9007199254740990)
   })
   it('rejects a global salary total that analytics cannot represent safely', () => {
@@ -14,7 +14,7 @@ describe('QA input and navigation regressions', () => {
     ])).toThrow('precision')
   })
   it('rejects duplicate CSV columns instead of silently selecting an ambiguous one', () => {
-    expect(() => loadOrganization('employee_id,manager_id,name,salary,salary,currency\nr,,Root,100,200,CAD')).toThrow('Duplicate CSV column')
+    expect(() => loadOrganization('Employee Id,Manager,Name,Salary,Salary\nr,,Root,100,200')).toThrow('Duplicate CSV column')
   })
   it('gives pager rows and arbitrary employee IDs different stable keys', () => {
     const employees = [{ id: 'r', name: 'Root', managerId: null, salaryMinor: 1 },

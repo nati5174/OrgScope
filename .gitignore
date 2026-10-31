@@ -12,8 +12,7 @@ __pycache__/
 *.pdf
 data/*
 !data/README.md
-!data/giga-corp-synthetic-40000.csv
-!data/synthetic-summary.json
 !data/audit/
 data/audit/*
 !data/audit/.gitkeep
+debug.log

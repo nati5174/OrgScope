@@ -6,7 +6,11 @@ import type { ImportMessage } from './importProtocol'
 // their calculations. Small messages avoid one expensive whole-graph clone on UI.
 export async function processImport(file: Blob, send: (message: ImportMessage) => void) {
   try {
-    const org = loadOrganization(await file.text())
+    send({ type: 'progress', progress: { phase: 'reading' } })
+    const text = await file.text()
+    send({ type: 'progress', progress: { phase: 'calculating' } })
+    const org = loadOrganization(text)
+    send({ type: 'progress', progress: { phase: 'assembling', loaded: 0, total: org.employees.size } })
     let employees: Employee[] = [], metrics: Metrics[] = []
     for (const employee of org.employees.values()) {
       employees.push(employee); metrics.push(org.metrics.get(employee.id)!)

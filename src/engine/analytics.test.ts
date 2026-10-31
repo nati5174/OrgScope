@@ -45,8 +45,8 @@ describe('workforce analytics', () => {
     expect(result.maxDepth).toBe(39999); expect(result.managementLayers).toBe(39999)
     expect(result.depthBuckets).toHaveLength(11); expect(result.depthBuckets[10].count).toBe(39990)
   })
-  it('reconciles distributions, branch totals, and real generated salaries for 40k employees', () => {
-    const data = loadOrganization(readFileSync(new URL('../../data/giga-corp-synthetic-40000.csv', import.meta.url), 'utf8'))
+  it('reconciles distributions, branch totals, and supplied salaries for 40k employees', () => {
+    const data = loadOrganization(readFileSync(new URL('../../data data.csv', import.meta.url), 'utf8'))
     const result = analyzeWorkforce(data, null)
     expect(result.headcount).toBe(40000)
     expect(result.totalCostMinor).toBe([...data.employees.values()].reduce((sum, e) => sum + e.salaryMinor, 0))

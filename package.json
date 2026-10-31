@@ -12,7 +12,8 @@
     "test": "vitest run",
     "benchmark": "tsx scripts/benchmark.ts",
     "benchmark:analytics": "tsx scripts/benchmark_analytics.ts",
-    "benchmark:scenario": "tsx scripts/benchmark_scenario.ts"
+    "benchmark:scenario": "tsx scripts/benchmark_scenario.ts",
+    "audit:math": "tsx scripts/audit_math.ts"
   },
   "dependencies": {
     "d3-hierarchy": "^3.1.2",

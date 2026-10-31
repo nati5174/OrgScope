@@ -57,10 +57,10 @@ describe('scenario moves', () => {
     expect(() => buildOrganization([employee('a', null), employee('b', 'a', Number.MAX_SAFE_INTEGER), employee('c', null, 1)])).toThrow('precision')
   })
   it('reconciles a 40k team move and leaves the baseline untouched', () => {
-    const org = loadOrganization(readFileSync(new URL('../../data/giga-corp-synthetic-40000.csv', import.meta.url), 'utf8'))
-    const before = org.metrics.get('GC000001')!.totalCostMinor
-    reconcile(org, 'GC000002', 'GC000007')
-    expect(org.employees.get('GC000002')!.managerId).toBe('GC000001')
-    expect(org.metrics.get('GC000001')!.totalCostMinor).toBe(before)
+    const org = loadOrganization(readFileSync(new URL('../../data data.csv', import.meta.url), 'utf8'))
+    const before = org.metrics.get('p_DrnEHzsrxaHOPnwwNDBwy')!.totalCostMinor
+    reconcile(org, 'p_cNNDKZRLm2DMkjKXx8YPdo', 'p_XkJbblsKUlQoR5W1DxAN7t')
+    expect(org.employees.get('p_cNNDKZRLm2DMkjKXx8YPdo')!.managerId).toBe('p_DrnEHzsrxaHOPnwwNDBwy')
+    expect(org.metrics.get('p_DrnEHzsrxaHOPnwwNDBwy')!.totalCostMinor).toBe(before)
   })
 })

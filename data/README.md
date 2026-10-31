@@ -1,39 +1,7 @@
-# Giga Corp — synthetic development dataset
+# Assessment data
 
-This is fictional test data generated for OrgScope. It is **not** the original
-Dayforce/Agentnoon Giga Corp dataset, and its schema has not been verified against
-that dataset. Names are randomly combined; any resemblance to people is incidental.
+The application and dataset-backed tests read `../data data.csv` directly. This is the unchanged 40,000-employee assessment attachment.
 
-Regenerate from the `dayforce_OA` directory with Python 3 (no dependencies):
+Employee Id and Manager define reporting relationships. Name, Department, Job Title and Location populate employee details. Salary is annual base pay; each value rounds half-up to cents before aggregation. Bonus is excluded. The source has no currency column, so amounts are labeled as unspecified currency.
 
-```sh
-python scripts/generate_dataset.py
-```
-
-The CSV contains exactly 40,000 employees with one CEO, eight organizational
-branches, uneven team sizes, and up to eight reporting edges below the CEO.
-It is deliberately valid: unique IDs, existing managers, no cycles, and
-nonnegative salaries. Invalid-input cases should use separate test fixtures.
-
-| Column | Convention |
-| --- | --- |
-| employee_id | Unique string ID, e.g. GC000001 |
-| manager_id | Manager's employee_id; blank for the CEO |
-| name | Fictional display name; duplicates are intentional |
-| salary | Annual base salary, decimal with two places; excludes benefits/bonus |
-| currency | CAD throughout, allowing comparable salary sums |
-| department | Synthetic organizational branch; Executive for the CEO |
-| title | Fictional role label; determine managers from reports, not titles |
-| location | Fictional office assignment or Remote |
-
-The fixed seed makes regeneration reproducible. Rows put managers before reports,
-but the application's importer must also support shuffled input. Salary and team
-distributions are development assumptions, not claims about real companies.
-
-`synthetic-summary.json` records generated counts and expected CEO descendant-only
-metrics for reconciliation. Whole-company salary totals include the CEO; CEO
-descendant metrics exclude the CEO. No performance benchmarks are claimed here.
-
-This dataset supports initial development and 40k-row profiling. It does not
-replace later verification against the assessment's actual data or tests for
-extreme depth, unusually wide teams, CSV quoting, and invalid relationships.
+Verification and benchmark scripts write local outputs here. Those outputs are ignored by Git.
