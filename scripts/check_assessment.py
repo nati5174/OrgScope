@@ -99,6 +99,50 @@ with sync_playwright() as playwright:
     table.locator('tbody tr').first.get_by_role('button', name=f'Explore {people[expected_branch]["Name"]} in chart', exact=True).click()
     expect(inspector).to_contain_text(people[expected_branch]['Name'])
     page.get_by_role('button', name='Organization', exact=True).click()
+    # Exercise planner validations and reconcile exported metrics independently.
+    page.get_by_role('button', name='Scenario Planner', exact=True).click()
+    planner = page.get_by_role('region', name='Scenario planner')
+    def choose(label, id):
+        planner.get_by_label(label, exact=True).fill(id)
+        planner.get_by_role('button', name=f'Select {people[id]["Name"]} ({id})', exact=True).click()
+    moving_label, destination_label = '1. Team or employee to move', '2. New reporting manager'
+    choose(moving_label, root)
+    choose(destination_label, target)
+    expect(planner.get_by_role('alert')).to_contain_text('descendants')
+    expect(planner.get_by_role('button', name='Preview move', exact=True)).to_be_disabled()
+    choose(moving_label, children[root][0])
+    choose(destination_label, children[root][0])
+    expect(planner.get_by_role('alert')).to_be_visible()
+    expect(planner.get_by_role('button', name='Preview move', exact=True)).to_be_disabled()
+    choose(destination_label, root)
+    expect(planner.get_by_role('alert')).to_be_visible()
+    expect(planner.get_by_role('button', name='Preview move', exact=True)).to_be_disabled()
+    moving, destination = children[root][:2]
+    choose(destination_label, destination)
+    expect(planner.get_by_role('button', name='Preview move', exact=True)).to_be_enabled()
+    planner.get_by_role('button', name='Preview move', exact=True).click()
+    expect(planner.get_by_role('region', name='proposed reporting structure')).to_contain_text(people[destination]['Name'])
+    with page.expect_download() as download_event:
+        planner.get_by_role('button', name='Export preview JSON', exact=True).click()
+    exported = json.loads(Path(download_event.value.path()).read_text(encoding='utf-8'))
+    assert exported['hypothetical'] is True and exported['destinationId'] == destination
+    assert exported['movedEmployee']['id'] == moving
+    proposed = json.loads(subprocess.check_output([sys.executable, str(workspace / 'scripts/reference_metrics.py'), str(dataset), moving, destination], text=True))
+    assert proposed['headcount'] == reference['headcount']
+    assert proposed['totalSalaryMinor'] == reference['totalSalaryMinor']
+    for affected in exported['affectedEmployees']:
+        assert affected['original'] == reference['metrics'][affected['id']]
+        assert affected['proposed'] == proposed['metrics'][affected['id']]
+    planner.get_by_role('button', name='Open interactive structure preview', exact=True).click()
+    expect(planner.get_by_role('complementary', name='Employee details')).to_contain_text(people[moving]['Name'])
+    planner.get_by_label('View', exact=True).select_option('original')
+    expect(planner.get_by_role('complementary', name='Employee details')).to_contain_text(people[moving]['Name'])
+    choose(destination_label, children[root][2])
+    expect(planner.get_by_role('status').filter(has_text='Selections changed')).to_be_visible()
+    planner.get_by_role('button', name='Reset scenario', exact=True).click()
+    expect(planner.get_by_role('button', name='Export preview JSON', exact=True)).to_have_count(0)
+    page.get_by_role('button', name='Organization Explorer', exact=True).click()
+    expect(metric(inspector, 'Total descendant cost')).to_have_text(exact(reference['metrics'][root]['totalCostMinor']))
     invalid = dict(rows[0], Manager='missing-assessment-manager')
     buffer = io.StringIO()
     writer = csv.DictWriter(buffer, fieldnames=list(invalid))
@@ -141,4 +185,4 @@ with sync_playwright() as playwright:
     page.get_by_role('region', name='Workforce analytics').get_by_label('Show exact salary amounts').check()
     page.screenshot(path=str(workspace / 'data/audit/analytics-priorities.png'), full_page=True)
     browser.close()
-print('Passed: supplied-data metrics, card counts, camera anchoring, pagination, search, breadcrumbs, analytics sorting/drill-through, import recovery, mobile navigation; no browser errors')
+print('Passed: scenario validation, exported-metric reconciliation, preview/reset and baseline preservation; supplied-data metrics, card counts, camera anchoring, pagination, search, breadcrumbs, analytics sorting/drill-through, import recovery, mobile navigation; no browser errors')

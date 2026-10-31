@@ -84,8 +84,6 @@ onBeforeUnmount(() => activeImport?.abort())
         <h1 class="mt-4 text-4xl font-semibold tracking-tight">Every reporting line.<br>One clear picture.</h1>
         <p class="mt-6 leading-relaxed text-slate-600">Explore your organization, understand team costs, and see the people behind the structure.</p>
         <button :disabled="busy" class="mt-8 rounded-xl bg-blue-800 px-6 py-3 font-medium text-white disabled:opacity-50" @click="loadAssessment">{{ busy ? 'Preparing your organization…' : 'Explore Giga Corp' }}</button>
-        <p class="mt-4 text-xs text-slate-500">40,000 employees | Supplied assessment dataset | Currency unspecified</p>
-        <p class="mt-8 text-sm text-slate-500">Upload an assessment CSV with Employee Id, Manager, Name, and Salary columns.</p>
       </section>
       <p v-if="org" class="mt-5 break-words text-xs text-slate-500">{{ datasetName }} · Costs in {{ org.currency === 'XXX' ? 'unspecified currency (source does not provide one)' : org.currency }}</p>
     </main>
