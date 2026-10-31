@@ -9,16 +9,16 @@ const org = shallowRef<Organization | null>(null)
 const view = ref<'explorer' | 'analytics' | 'planner'>('explorer'), analyticsScope = ref<string | null>(null), explorerTarget = ref<string | null>(null)
 const progress = ref(''), loaded = ref(0), total = ref(0)
 let retryFile: File | null = null
-const busy = ref(false), error = ref(''), generation = ref(0), datasetName = ref('')
+const busy = ref(false), error = ref(''), generation = ref(0)
 let activeImport: AbortController | null = null
-async function ingest(file: Blob, name: string, controller: AbortController) {
+async function ingest(file: Blob, controller: AbortController) {
   const next = await importOrganization(file, controller.signal, undefined, update => {
     if (activeImport !== controller) return
     loaded.value = update.loaded ?? 0; total.value = update.total ?? 0
     progress.value = update.phase === 'reading' ? 'Reading your CSV' : update.phase === 'calculating' ? 'Validating reporting lines and calculating costs' : 'Preparing your organization'
   })
   if (activeImport !== controller || controller.signal.aborted) return
-  org.value = next; datasetName.value = name; generation.value++
+  org.value = next; generation.value++
   analyticsScope.value = null; explorerTarget.value = null
 }
 function analyze(id: string) { analyticsScope.value = id; view.value = 'analytics' }
@@ -31,7 +31,7 @@ async function loadAssessment() {
   try {
     const response = await fetch(new URL('../data data.csv', import.meta.url), { signal: controller.signal })
     if (!response.ok) throw new Error('Could not load the assessment dataset')
-    await ingest(await response.blob(), 'Giga Corp · Assessment dataset', controller)
+    await ingest(await response.blob(), controller)
   } catch (e) { if (!controller.signal.aborted && activeImport === controller) error.value = e instanceof Error ? e.message : String(e) }
   finally { if (activeImport === controller) { busy.value = false; activeImport = null } }
 }
@@ -46,7 +46,7 @@ async function uploadFile(file: File) {
   activeImport?.abort()
   const controller = new AbortController(); activeImport = controller
   busy.value = true; error.value = ''; progress.value = 'Opening your CSV'; total.value = 0; loaded.value = 0
-  try { await ingest(file, file.name, controller) }
+  try { await ingest(file, controller) }
   catch (e) { if (!controller.signal.aborted && activeImport === controller) error.value = e instanceof Error ? e.message : String(e) }
   finally { if (activeImport === controller) { busy.value = false; activeImport = null } }
 }
@@ -85,7 +85,6 @@ onBeforeUnmount(() => activeImport?.abort())
         <p class="mt-6 leading-relaxed text-slate-600">Explore your organization, understand team costs, and see the people behind the structure.</p>
         <button :disabled="busy" class="mt-8 rounded-xl bg-blue-800 px-6 py-3 font-medium text-white disabled:opacity-50" @click="loadAssessment">{{ busy ? 'Preparing your organization…' : 'Explore Giga Corp' }}</button>
       </section>
-      <p v-if="org" class="mt-5 break-words text-xs text-slate-500">{{ datasetName }} · Costs in {{ org.currency === 'XXX' ? 'unspecified currency (source does not provide one)' : org.currency }}</p>
     </main>
   </div>
 </template>
